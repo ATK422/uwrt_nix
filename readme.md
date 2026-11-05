@@ -64,8 +64,12 @@ You don't need direnv: `nix develop` in a repository gives you the same shell fo
 
 | Shell | Contents |
 |---|---|
-| `firmware` (the default) | ARM GCC 13, CMake, Ninja, the Pico SDK 1.5.1, the micro-ROS library, Rust with the `thumbv6m-none-eabi` target, picotool, probe-rs, just, git |
+| `firmware` | ARM GCC 13, CMake, Ninja, the Pico SDK 1.5.1, the micro-ROS library, Rust with the `thumbv6m-none-eabi` target, picotool, probe-rs, just, git |
 | `ros` | ROS 2 Humble (`ros-core`), the riptide messages, colcon |
+| `autonomy` | for `riptide_autonomy`: ROS 2 Humble, BehaviorTree.CPP 3, robot_localization, tf2, the riptide, chameleon_tf and nortek_dvl messages, colcon |
+
+There's no default shell: each repository's flake picks the one it uses (see below). In this repository, name
+the shell: `nix develop .#firmware`.
 
 The firmware shell also sets the variables `titan_firmware`'s build reads:
 
@@ -105,16 +109,19 @@ they work on Linux and NixOS only.
 
 ## Using it in a repository
 
-A repository that only needs the shells as they are:
+A repository that only needs one of the shells as it is:
 
 ```nix
 {
   inputs.uwrt.url = "github:atk422/uwrt_nix";
   outputs = { uwrt, ... }: {
-    devShells = uwrt.devShells;
+    devShells = builtins.mapAttrs (system: shells: { default = shells.firmware; }) uwrt.devShells;
   };
 }
 ```
+
+`uwrt.devShells` is a set per system (`x86_64-linux = { firmware = ...; ros = ...; }`, ...), and
+`builtins.mapAttrs` makes the same shape with only `default` in each.
 
 A repository that combines shells or adds its own tools:
 

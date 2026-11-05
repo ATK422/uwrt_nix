@@ -23,6 +23,14 @@
       url = "github:osu-uwrt/riptide_core/master";
       flake = false;
     };
+    nortek-dvl = {
+      url = "github:osu-uwrt/nortek_dvl/ros2_dev";
+      flake = false;
+    };
+    chameleon-tf = {
+      url = "github:coalman321/chameleon_tf/master";
+      flake = false;
+    };
   };
 
   outputs =
@@ -52,7 +60,7 @@
     {
       overlays.default = nixpkgs.lib.composeManyExtensions [
         (import ./overlays/firmware.nix)
-        (import ./overlays/ros.nix { inherit (inputs) riptide-core; })
+        (import ./overlays/ros.nix { inherit (inputs) riptide-core chameleon-tf nortek-dvl; })
       ];
 
       lib.forAllSystems = forAllSystems;
@@ -60,6 +68,8 @@
       packages = forAllSystems (pkgs: {
         pico-sdk = pkgs.uwrt.pico-sdk;
         libmicroros = pkgs.uwrt.libmicroros;
+        chameleon-tf-msgs = pkgs.uwrt.chameleon-tf-msgs;
+        nortek-dvl-msgs = pkgs.uwrt.nortek-dvl-msgs;
       });
 
       devShells = forAllSystems (pkgs: {
@@ -85,15 +95,12 @@
             # Utils
             screen
             just
-            # The firmware's version stamp (titan_version) runs git; this makes sure it exists in pure
-            # environments like CI, where builds would otherwise report None/None
             git
           ];
 
           CMAKE_POLICY_VERSION_MINIMUM = "3.5";
           PICO_TOOLCHAIN_PATH = "${pkgs.gcc-arm-embedded}";
           PICO_SDK_PATH = "${pkgs.uwrt.pico-sdk}";
-          # titan_firmware's lib/micro_ros_pico uses this instead of the Docker-built libmicroros folder
           MICRO_ROS_LIB_DIR = "${pkgs.uwrt.libmicroros}";
         };
 
@@ -109,7 +116,32 @@
           ];
         };
 
-        default = self.devShells.${pkgs.stdenv.hostPlatform.system}.firmware;
+        autonomy = pkgs.mkShell {
+          packages = [
+            (pkgs.rosPackages.humble.buildEnv {
+              paths =
+                (with pkgs.rosPackages.humble; [
+                  ros-core
+                  ament-cmake-core
+                  vision-msgs
+                  behaviortree-cpp-v3
+                  tf2
+                  tf2-ros
+                  tf2-geometry-msgs
+                  tinyxml2-vendor
+                  robot-localization
+                  python3Packages.transforms3d
+                ])
+                ++ (with pkgs.uwrt; [
+                  riptide-msgs
+                  chameleon-tf-msgs
+                  nortek-dvl-msgs
+                ]);
+            })
+            pkgs.colcon
+            pkgs.lsb-release
+          ];
+        };
       });
     };
 }

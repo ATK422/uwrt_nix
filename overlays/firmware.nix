@@ -3,8 +3,6 @@ final: prev: {
   gcc-arm-embedded = prev.gcc-arm-embedded-13;
 
   uwrt = (prev.uwrt or { }) // {
-    # The SDK is just source: each firmware build compiles its tools (pioasm, elf2uf2) itself.
-    # titan_firmware is written for 1.5.1 (nixpkgs' pico-sdk is 2.x); the submodules include tinyusb.
     pico-sdk = prev.fetchFromGitHub {
       owner = "raspberrypi";
       repo = "pico-sdk";

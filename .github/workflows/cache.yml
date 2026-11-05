@@ -1,0 +1,28 @@
+name: Build and cache
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            extra-substituters = https://ros.cachix.org
+            extra-trusted-public-keys = ros.cachix.org-1:dSyZxI8geDCJrwgvCOHDoAfOm5sV1wCPjBkKL+38Rvo=
+      - uses: cachix/cachix-action@v16
+        with:
+          name: uwrt
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Build the dev shells
+        run: |
+          nix develop .#firmware --command true
+          nix develop .#ros --command true

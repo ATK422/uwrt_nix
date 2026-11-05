@@ -1,6 +1,17 @@
 {
   description = "OSU Underwater Robotics Team Environment";
 
+  nixConfig = {
+    extra-substituters = [
+      "https://ros.cachix.org"
+      "https://uwrt.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "ros.cachix.org-1:dSyZxI8geDCJrwgvCOHDoAfOm5sV1wCPjBkKL+38Rvo="
+      "uwrt.cachix.org-1:<your cache's public key from its Cachix page>"
+    ];
+  };
+
   inputs = {
     nix-ros-overlay.url = "github:lopsided98/nix-ros-overlay/master";
     nixpkgs.follows = "nix-ros-overlay/nixpkgs";

@@ -8,7 +8,7 @@
     ];
     extra-trusted-public-keys = [
       "ros.cachix.org-1:dSyZxI8geDCJrwgvCOHDoAfOm5sV1wCPjBkKL+38Rvo="
-      "uwrt.cachix.org-1:<your cache's public key from its Cachix page>"
+      "uwrt.cachix.org-1:8jsEBONNUB05TKTqyzw8rWFHZ8cKaBc4PagJJI09qco="
     ];
   };
 

@@ -43,9 +43,13 @@
         (import ./overlays/firmware.nix)
         (import ./overlays/ros.nix { inherit (inputs) riptide-core; })
       ];
+
+      lib.forAllSystems = forAllSystems;
+
       packages = forAllSystems (pkgs: {
         pico-sdk = pkgs.uwrt.pico-sdk;
       });
+
       devShells = forAllSystems (pkgs: {
         firmware = pkgs.mkShell {
           packages = with pkgs; [

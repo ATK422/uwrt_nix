@@ -24,5 +24,8 @@ in
       ];
       cmakeFlags = [ "-DBUILD_TESTING=OFF" ];
     };
+
+    # The micro-ROS library for the C firmware, with the same riptide_msgs revision as above
+    libmicroros = final.callPackage ../pkgs/libmicroros { inherit riptide-core; };
   };
 }

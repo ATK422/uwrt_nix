@@ -59,6 +59,7 @@
 
       packages = forAllSystems (pkgs: {
         pico-sdk = pkgs.uwrt.pico-sdk;
+        libmicroros = pkgs.uwrt.libmicroros;
       });
 
       devShells = forAllSystems (pkgs: {
@@ -84,11 +85,16 @@
             # Utils
             screen
             just
+            # The firmware's version stamp (titan_version) runs git; this makes sure it exists in pure
+            # environments like CI, where builds would otherwise report None/None
+            git
           ];
 
           CMAKE_POLICY_VERSION_MINIMUM = "3.5";
           PICO_TOOLCHAIN_PATH = "${pkgs.gcc-arm-embedded}";
           PICO_SDK_PATH = "${pkgs.uwrt.pico-sdk}";
+          # titan_firmware's lib/micro_ros_pico uses this instead of the Docker-built libmicroros folder
+          MICRO_ROS_LIB_DIR = "${pkgs.uwrt.libmicroros}";
         };
 
         ros = pkgs.mkShell {
